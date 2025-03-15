@@ -9,4 +9,8 @@ file_path = saver.run()
 
 list_page = ListPage()
 list_page.set_file_path(file_path)
-print(list_page.get_links_of_detail_pages())
+
+details= list_page.get_details()
+
+if len(details) > 0:
+    print(details)
