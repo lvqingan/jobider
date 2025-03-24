@@ -7,7 +7,7 @@ SET UNIQUE_CHECKS = 0;
 DROP DATABASE IF EXISTS jobider;
 
 -- Create the database
-CREATE DATABASE jobider ENGINE=InnoDB CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+CREATE DATABASE jobider CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 
 -- Use the created database
 USE jobider;
@@ -20,7 +20,7 @@ CREATE TABLE companies (
     id int unsigned NOT NULL AUTO_INCREMENT,
     name varchar(255) NOT NULL UNIQUE,
     parent_id int unsigned DEFAULT NULL,
-    source int unsigned NOT NULL,
+    source VARCHAR(255) NOT NULL,
     index_url varchar(255) NOT NULL,
     request_method enum('GET', 'POST') NOT NULL,
     post_params json DEFAULT NULL,
@@ -35,15 +35,15 @@ DROP TABLE IF EXISTS company_details;
 -- Create the company_details table
 CREATE TABLE company_details (
     company_id int unsigned NOT NULL,
-    logo longblob NOT NULL,
+    logo longblob,
     about text,
     website varchar(255) DEFAULT NULL,
     industry varchar(255) DEFAULT NULL,
     company_size varchar(255) DEFAULT NULL,
     country varchar(255) DEFAULT NULL,
     city varchar(255) DEFAULT NULL,
-    founded year DEFAULT NULL,
-    linkedin varchar(255) DEFAULT NULL,
+    founded varchar(255) DEFAULT NULL,
+    linkedin varchar(512) DEFAULT NULL,
     facebook varchar(255) DEFAULT NULL,
     youtube varchar(255) DEFAULT NULL,
     instagram varchar(255) DEFAULT NULL,
