@@ -1,18 +1,20 @@
-class CompanyDetail:
-    def __init__(self, company_id=None, logo=None, about=None, website=None, industry=None, company_size=None,
-                 country=None, city=None, founded=None, linkedin=None, facebook=None, youtube=None, instagram=None,
-                 twitter=None):
-        self.company_id = company_id
-        self.logo = logo
-        self.about = about
-        self.website = website
-        self.industry = industry
-        self.company_size = company_size
-        self.country = country
-        self.city = city
-        self.founded = founded
-        self.linkedin = linkedin
-        self.facebook = facebook
-        self.youtube = youtube
-        self.instagram = instagram
-        self.twitter = twitter
+from sqlalchemy import Column, Integer, String, ForeignKey
+from config.database import Base
+
+
+class CompanyDetail(Base):
+    __tablename__ = 'company_details'
+    company_id = Column(Integer, ForeignKey('companies.id'), primary_key=True)
+    logo = Column(String)
+    about = Column(String)
+    website = Column(String)
+    industry = Column(String)
+    company_size = Column(String)
+    country = Column(String)
+    city = Column(String)
+    founded = Column(String)
+    linkedin = Column(String)
+    facebook = Column(String)
+    youtube = Column(String)
+    instagram = Column(String)
+    twitter = Column(String)
