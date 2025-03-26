@@ -1,21 +1,26 @@
+from contracts.list_page_without_detail import ListPageWithoutDetail
 from crawler import Crawler
 from mappers.company_mapper import CompanyMapper
-from enums.content_type import ContentType
 from saver import Saver
-from sources.workable.list_page import ListPage
 
 mapper = CompanyMapper()
 company = mapper.get_company_with_details(7)
 
 if company:
-    crawler = Crawler(company.index_url)
-    saver = Saver(crawler.run(), ContentType.JSON)
+    source = mapper.get_source(company)
+    list_page = source.get_list_page()
+
+    crawler = Crawler(company.index_url, list_page.get_request_method())
+    saver = Saver(crawler.run(), list_page.get_content_type())
     file_path = saver.run()
 
-    list_page = ListPage()
-    list_page.set_file_path(file_path)
+    list_page.file_path = file_path
+    list_page.link_address = company.index_url
 
-    details = list_page.get_details()
+    detail_links = []
 
-    if len(details) > 0:
-        print(details)
+    if isinstance(list_page, ListPageWithoutDetail):
+        detail_links = list_page.get_links_of_detail_pages()
+
+    if len(detail_links) > 0:
+        print(detail_links)

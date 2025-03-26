@@ -3,9 +3,11 @@ This module defines a set of classes for managing file paths and retrieving link
 The `FilePath` class is a descriptor for controlling file path attributes,
 and the `ListPage` abstract class provides an interface for getting detail page links.
 """
-from abc import ABC, abstractmethod
-from typing import Union, List
 import os
+from abc import ABC, abstractmethod
+from typing import Union
+from enums.content_type import ContentType
+from enums.request_method import RequestMethod
 
 
 class FilePath:
@@ -35,12 +37,40 @@ class FilePath:
             raise AttributeError("file path has not been set yet.")
         return self.value
 
+class LinkAddress:
+    def __init__(self):
+        self.value: Union[str, None] = None
+
+    def __set__(self, instance, value):
+        if not value:
+            raise ValueError("link address cannot be empty.")
+        self.value = value
+
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+
+        if self.value is None:
+            raise AttributeError("link address has not been set yet.")
+        return self.value
+
 
 class ListPage(ABC):
     file_path: FilePath
+    link_address: LinkAddress
 
-    def set_file_path(self, file_path: str):
-        """This method must be called to set the file path after instantiation.
-        :param file_path: The file path used to parse the links
+    @abstractmethod
+    def get_request_method(self) -> RequestMethod:
+        """Get the request method of the list page for the current source
+        :return: POST or GET
+        :rtype: RequestMethod
         """
-        self.file_path = file_path
+        pass
+
+    @abstractmethod
+    def get_content_type(self) -> ContentType:
+        """Get the content type of the list page for the current source
+        :return: JSON or HTML
+        :rtype: ContentType
+        """
+        pass
