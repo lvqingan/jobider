@@ -11,8 +11,8 @@ import sys
 
 
 class CompanyRepository:
-    def __init__(self):
-        self.mapper = CompanyMapper()
+    def __init__(self, session):
+        self.mapper = CompanyMapper(session)
 
     def get_company_with_details(self, company_id: int) -> Union[Company, None]:
         return self.mapper.find(company_id)

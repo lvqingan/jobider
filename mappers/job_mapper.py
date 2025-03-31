@@ -3,8 +3,8 @@ from models.job import Job
 
 
 class JobMapper:
-    def __init__(self):
-        self.session = Session()
+    def __init__(self, session):
+        self.session = session
 
     def save(self, job: Job):
 
@@ -14,5 +14,3 @@ class JobMapper:
         except Exception as e:
             self.session.rollback()
             raise e
-        finally:
-            self.session.close()

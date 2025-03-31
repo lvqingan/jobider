@@ -2,5 +2,5 @@ from enum import Enum
 
 
 class ContentType(Enum):
-    JSON = 1
-    HTML = 2
+    JSON = 'application/json'
+    HTML = 'text/html'

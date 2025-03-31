@@ -1,6 +1,5 @@
 from contracts.detail_page import DetailPage as DetailPageContract
 from enums.content_type import ContentType
-from enums.request_method import RequestMethod
 from models.company import Company
 from models.job import Job
 from utils import convert_iso_to_mysql_datetime
@@ -23,7 +22,7 @@ class DetailPage(DetailPageContract):
                 job.external_id = json_data['code']
                 job.title = json_data['title']
                 job.description = json_data['description']
-                job.employment_type = json_data['type']
+                job.employment_type = json_data['type'] if 'type' in json_data else None
                 job.benefits = json_data['benefits']
                 job.requirements = json_data['requirements']
                 job.url = f'https://apply.workable.com/{company_name_part}/j/{json_data['shortcode']}/'
@@ -46,8 +45,5 @@ class DetailPage(DetailPageContract):
         except json.JSONDecodeError as e:
             raise ValueError(f"Error decoding JSON in file {self.file_path}: {e}")
 
-    def get_request_method(self) -> RequestMethod:
-        return RequestMethod.GET
-
-    def get_content_type(self) -> ContentType:
+    def get_response_content_type(self) -> ContentType:
         return ContentType.JSON

@@ -2,7 +2,6 @@ import os
 from abc import ABC, abstractmethod
 from typing import Union
 from enums.content_type import ContentType
-from enums.request_method import RequestMethod
 
 
 class FilePath:
@@ -56,15 +55,7 @@ class Page(ABC):
     link_address: LinkAddress
 
     @abstractmethod
-    def get_request_method(self) -> RequestMethod:
-        """Get the request method of the list page for the current source
-        :return: POST or GET
-        :rtype: RequestMethod
-        """
-        pass
-
-    @abstractmethod
-    def get_content_type(self) -> ContentType:
+    def get_response_content_type(self) -> ContentType:
         """Get the content type of the list page for the current source
         :return: JSON or HTML
         :rtype: ContentType
