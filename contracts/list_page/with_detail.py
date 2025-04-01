@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 
-class ListPageWithDetail(ABC):
+class WithDetail(ABC):
     @abstractmethod
     def get_details(self) -> List[dict]:
         """

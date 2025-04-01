@@ -69,6 +69,7 @@ CREATE TABLE jobs (
     url varchar(255) NOT NULL,
     locations json DEFAULT NULL,
     published_at datetime DEFAULT NULL,
+    expired_at datetime DEFAULT NULL,
     updated_at datetime DEFAULT NULL,
     workplace varchar(50) DEFAULT NULL,
     PRIMARY KEY (id),

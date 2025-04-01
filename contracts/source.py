@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from contracts.list_page import ListPage as ListPageContract
+from contracts.list_page.list_page import ListPage as ListPageContract
 from contracts.detail_page import DetailPage as DetailPageContract
 
 

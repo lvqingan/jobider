@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Union
 
 
-class ListPageCursorPagination(ABC):
+class CursorBasedPagination(ABC):
     @abstractmethod
     def get_cursor_parameter_name(self) -> str:
         """

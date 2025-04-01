@@ -4,23 +4,13 @@ from typing import Union
 from enums.content_type import ContentType
 
 
-class FilePath:
-    """Descriptor class for managing file path.
-
-    This class is used to control the setting and retrieval of the file path attribute.
-
-    Attributes:
-        value (Union[str, None]): The string storing the file path, initialized to None.
-    """
-
+class Content:
     def __init__(self):
         self.value: Union[str, None] = None
 
     def __set__(self, instance, value):
         if not value:
-            raise ValueError("file path cannot be empty.")
-        if os.path.exists(value) and not os.path.isfile(value):
-            raise ValueError("The provided path should be a file path.")
+            raise ValueError("content cannot be empty.")
         self.value = value
 
     def __get__(self, instance, owner):
@@ -28,7 +18,7 @@ class FilePath:
             return self
 
         if self.value is None:
-            raise AttributeError("file path has not been set yet.")
+            raise AttributeError("content has not been set yet.")
         return self.value
 
 
@@ -51,8 +41,8 @@ class LinkAddress:
 
 
 class Page(ABC):
-    file_path: FilePath
     link_address: LinkAddress
+    _content: Content
 
     @abstractmethod
     def get_response_content_type(self) -> ContentType:
@@ -61,3 +51,17 @@ class Page(ABC):
         :rtype: ContentType
         """
         pass
+
+    @abstractmethod
+    def load_content(self, file_path: str):
+        pass
+
+    def load(self, file_path: str, link_address: str):
+        if os.path.exists(file_path) and not os.path.isfile(file_path):
+            raise ValueError("The provided path should be a file path.")
+
+        self._content = self.load_content(file_path)
+        self.link_address = link_address
+
+    def get_content(self):
+        return self._content

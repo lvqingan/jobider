@@ -1,9 +1,9 @@
 import json
 import re
-from contracts.list_page import ListPage as ListPageContract
-from contracts.list_page_without_detail import ListPageWithoutDetail as ListPageWithoutDetailContract
+from contracts.list_page.list_page import ListPage as ListPageContract
+from contracts.list_page.without_detail import WithoutDetail as WithoutDetailContract
 from contracts.post_request import PostRequest as PostRequestContract
-from contracts.list_page_cursor_pagination import ListPageCursorPagination as ListPageCursorPaginationContract
+from contracts.list_page.cursor_based_pagination import CursorBasedPagination as CursorBasedPaginationContract
 from typing import List, Union
 from enums.content_type import ContentType
 from errors.parser.key_not_found_exception import KeyNotFoundException
@@ -11,26 +11,22 @@ from errors.parser.key_not_found_exception import KeyNotFoundException
 
 class ListPage(
     ListPageContract,
-    ListPageWithoutDetailContract,
+    WithoutDetailContract,
     PostRequestContract,
-    ListPageCursorPaginationContract
+    CursorBasedPaginationContract
 ):
-    _content = None
-
-    def _get_content(self):
-        if self._content is None:
-            try:
-                with open(self.file_path, 'r') as file:
-                    self._content = json.load(file)
-            except json.JSONDecodeError as e:
-                raise ValueError(f"Error decoding JSON in file {self.file_path}: {e}")
-        return self._content
+    def load_content(self, file_path):
+        try:
+            with open(file_path, 'r') as file:
+                return json.load(file)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Error decoding JSON in file {file_path}: {e}")
 
     def get_links_of_detail_pages(self) -> List[str]:
         match = re.search(r'/accounts/([^/]+)/jobs', self.link_address)
         company_name_part = match.group(1)
 
-        json_data = self._get_content()
+        json_data = self.get_content()
 
         if 'results' not in json_data:
             raise KeyNotFoundException(json_data, 'results')
@@ -63,6 +59,6 @@ class ListPage(
         return 'token'
 
     def get_cursor_parameter_value(self) -> Union[str, None]:
-        json_data = self._get_content()
+        json_data = self.get_content()
 
         return json_data['nextPage'] if 'nextPage' in json_data else None

@@ -19,6 +19,7 @@ class Job(Base):
     url = Column(String(255), nullable=False)
     locations = Column(JSON)
     published_at = Column(DateTime)
+    expired_at = Column(DateTime)
     updated_at = Column(DateTime)
     workplace = Column(String(50))
 

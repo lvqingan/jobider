@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 
-class ListPageWithoutDetail(ABC):
+class WithoutDetail(ABC):
     @abstractmethod
     def get_links_of_detail_pages(self) -> List[str]:
         """
