@@ -19,7 +19,7 @@ class DetailPage(DetailPageContract):
         match = re.search(r'/accounts/([^/]+)/jobs', self.link_address)
         company_name_part = match.group(1)
 
-        json_data = self.get_content()
+        json_data = self.content
 
         job = Job()
         job.company = company

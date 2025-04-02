@@ -1,35 +1,42 @@
+from models.company import Company
 from repositories.company_repository import CompanyRepository
 from worker import Worker
 from config.database import Session
 from contracts.list_page.cursor_based_pagination import CursorBasedPagination as ListPageCursorBasedPaginationContract
 from contracts.list_page.length_aware_pagination import LengthAwarePagination as ListPageLengthAwarePaginationContract
+import multiprocessing
 
 session = Session()
 
 company_repository = CompanyRepository(session)
-test_company = company_repository.get_company_with_details(567)
-# test_company = company_repository.get_company_with_details(25)
+companies = [
+    company_repository.get_company_with_details(567),
+    company_repository.get_company_with_details(25)
+]
 
-if test_company:
-    source = CompanyRepository.get_source(test_company)
-    list_page = source.get_list_page()
-    detail_page = source.get_detail_page()
-    worker = Worker(test_company, list_page, detail_page, session)
-    worker.run()
 
+def crawl(company: Company):
+    source = CompanyRepository.get_source(company)
+    worker = Worker(company, source, session)
+    list_page = worker.run()
     if isinstance(list_page, ListPageCursorBasedPaginationContract):
         cursor_parameter_value = list_page.get_cursor_parameter_value()
 
         while cursor_parameter_value is not None:
-            Worker(test_company, list_page, detail_page, session,
-                   {list_page.get_cursor_parameter_name(): cursor_parameter_value}).run()
+            next_page = Worker(company, source, session,
+                               {list_page.get_cursor_parameter_name(): cursor_parameter_value}).run()
 
-            cursor_parameter_value = list_page.get_cursor_parameter_value()
+            cursor_parameter_value = next_page.get_cursor_parameter_value()
     elif isinstance(list_page, ListPageLengthAwarePaginationContract):
         remain_pages_parameters = list_page.get_remain_length_aware_parameters()
 
         if remain_pages_parameters is not None:
             for remain_pages_parameter in remain_pages_parameters:
-                Worker(test_company, list_page, detail_page, session, remain_pages_parameter).run()
+                Worker(company, source, session, remain_pages_parameter).run()
+
+
+if __name__ == '__main__':
+    with multiprocessing.Pool(processes=2) as pool:
+        results = pool.map(crawl, companies)
 
 session.close()

@@ -14,7 +14,7 @@ class DetailPage(DetailPageContract):
             raise ValueError(f"Error decoding JSON in file {file_path}: {e}")
 
     def to_job(self, company: Company) -> Job:
-        json_data = self.get_content()['jobPostingInfo']
+        json_data = self.content['jobPostingInfo']
 
         job = Job()
         job.company = company

@@ -26,7 +26,7 @@ class ListPage(
             raise ValueError(f"Error decoding JSON in file {file_path}: {e}")
 
     def get_remain_length_aware_parameters(self) -> Union[list, None]:
-        json_data = self.get_content()
+        json_data = self.content
         pages = math.ceil(json_data['total'] / 20)
 
         if pages > 1:
@@ -52,7 +52,7 @@ class ListPage(
         return ContentType.JSON
 
     def get_links_of_detail_pages(self) -> List[str]:
-        json_data = self.get_content()
+        json_data = self.content
 
         if 'jobPostings' not in json_data:
             raise KeyNotFoundException(json_data, 'jobPostings')

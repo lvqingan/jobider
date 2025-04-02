@@ -26,7 +26,7 @@ class ListPage(
         match = re.search(r'/accounts/([^/]+)/jobs', self.link_address)
         company_name_part = match.group(1)
 
-        json_data = self.get_content()
+        json_data = self.content
 
         if 'results' not in json_data:
             raise KeyNotFoundException(json_data, 'results')
@@ -59,6 +59,6 @@ class ListPage(
         return 'token'
 
     def get_cursor_parameter_value(self) -> Union[str, None]:
-        json_data = self.get_content()
+        json_data = self.content
 
         return json_data['nextPage'] if 'nextPage' in json_data else None

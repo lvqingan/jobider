@@ -42,7 +42,7 @@ class LinkAddress:
 
 class Page(ABC):
     link_address: LinkAddress
-    _content: Content
+    content: Content
 
     @abstractmethod
     def get_response_content_type(self) -> ContentType:
@@ -60,8 +60,5 @@ class Page(ABC):
         if os.path.exists(file_path) and not os.path.isfile(file_path):
             raise ValueError("The provided path should be a file path.")
 
-        self._content = self.load_content(file_path)
+        self.content = self.load_content(file_path)
         self.link_address = link_address
-
-    def get_content(self):
-        return self._content
