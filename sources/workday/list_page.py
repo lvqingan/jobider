@@ -51,7 +51,7 @@ class ListPage(
     def get_response_content_type(self) -> ContentType:
         return ContentType.JSON
 
-    def get_links_of_detail_pages(self) -> List[str]:
+    def get_links_of_detail_pages(self, filtered_unique_ids: List[str]) -> List[str]:
         json_data = self.content
 
         if 'jobPostings' not in json_data:
@@ -63,6 +63,30 @@ class ListPage(
         for job_data in jobs_data:
             if 'externalPath' not in job_data:
                 raise KeyNotFoundException(job_data, 'externalPath')
-            job_urls.append(self.link_address.rsplit('/', 1)[0] + job_data['externalPath'])
+
+            if 'bulletFields' not in job_data:
+                raise KeyNotFoundException(job_data, 'bulletFields')
+
+            if job_data['bulletFields'][0] in filtered_unique_ids:
+                job_urls.append(self.link_address.rsplit('/', 1)[0] + job_data['externalPath'])
 
         return job_urls
+
+    def get_unique_ids(self) -> List[str]:
+        json_data = self.content
+
+        if 'jobPostings' not in json_data:
+            raise KeyNotFoundException(json_data, 'jobPostings')
+
+        jobs_data: list[dict] = json_data['jobPostings']
+        internal_ids = []
+
+        for job_data in jobs_data:
+            if 'bulletFields' not in job_data:
+                raise KeyNotFoundException(job_data, 'bulletFields')
+            internal_ids.append(str(job_data['bulletFields'][0]))
+
+        return internal_ids
+
+    def use_external_id_as_unique_id(self) -> bool:
+        return True

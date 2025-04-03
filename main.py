@@ -1,5 +1,6 @@
 from models.company import Company
 from repositories.company_repository import CompanyRepository
+from utils import log_exceptions
 from worker import Worker
 from config.database import Session
 from contracts.list_page.cursor_based_pagination import CursorBasedPagination as ListPageCursorBasedPaginationContract
@@ -14,7 +15,7 @@ companies = [
     company_repository.get_company_with_details(25)
 ]
 
-
+@log_exceptions
 def crawl(company: Company):
     source = CompanyRepository.get_source(company)
     worker = Worker(company, source, session)

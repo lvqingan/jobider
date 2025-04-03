@@ -1,6 +1,7 @@
 import random
 from time import sleep
 from typing import Union
+from config.logging import worker_logger
 from models.company import Company
 from contracts.list_page.without_detail import WithoutDetail as ListPageWithoutDetailContract
 from contracts.post_request import PostRequest as PostRequestContract
@@ -26,8 +27,9 @@ class Worker:
 
     def run(self) -> Union[
         ListPageContract, ListPageCursorBasedPaginationContract, ListPageLengthAwarePaginationContract]:
-        print(f'List Page Link: {self.company.index_url}')
-        print(f'Next Page: {self.next_page_parameters if self.next_page_parameters is not None else 'None'}')
+        worker_logger.info(f'List Page Link: {self.company.index_url}')
+        worker_logger.info(
+            f'Next Page: {self.next_page_parameters if self.next_page_parameters is not None else 'None'}')
         list_page = self.source.get_list_page()
 
         if isinstance(list_page, PostRequestContract):
@@ -48,16 +50,22 @@ class Worker:
         list_page.load(list_saver.run(), self.company.index_url)
 
         detail_page_links = []
+        unique_ids = list_page.get_unique_ids()
+        job_repository = JobRepository(self.session)
+        if list_page.use_external_id_as_unique_id():
+            filtered_unique_ids = job_repository.filter_out(self.company.id, external_ids=unique_ids)
+        else:
+            filtered_unique_ids = job_repository.filter_out(self.company.id, internal_ids=unique_ids)
 
         if isinstance(list_page, ListPageWithoutDetailContract):
-            detail_page_links = list_page.get_links_of_detail_pages()
+
+            detail_page_links = list_page.get_links_of_detail_pages(filtered_unique_ids)
 
         if len(detail_page_links) > 0:
             with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
                 detail_pages = list(executor.map(self._scrape_detail_pages, detail_page_links))
 
             # session is not thread safe
-            job_repository = JobRepository(self.session)
             for detail_page in detail_pages:
                 job_repository.save_job(detail_page.to_job(self.company))
 
@@ -65,7 +73,7 @@ class Worker:
 
     def _scrape_detail_pages(self, detail_page_link) -> DetailPageContract:
         seconds = random.randint(4, 8)
-        print(f'Detail Page Link: {detail_page_link}. Sleep {seconds} seconds')
+        worker_logger.info(f'Detail Page Link: {detail_page_link}. Sleep {seconds} seconds')
         detail_page = self.source.get_detail_page()
 
         if isinstance(detail_page, PostRequestContract):

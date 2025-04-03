@@ -22,7 +22,7 @@ class ListPage(
         except json.JSONDecodeError as e:
             raise ValueError(f"Error decoding JSON in file {file_path}: {e}")
 
-    def get_links_of_detail_pages(self) -> List[str]:
+    def get_links_of_detail_pages(self, filtered_unique_ids: List[str]) -> List[str]:
         match = re.search(r'/accounts/([^/]+)/jobs', self.link_address)
         company_name_part = match.group(1)
 
@@ -37,10 +37,28 @@ class ListPage(
         for job_data in jobs_data:
             if 'shortcode' not in job_data:
                 raise KeyNotFoundException(job_data, 'shortcode')
-            job_urls.append(
-                f'https://apply.workable.com/api/v2/accounts/{company_name_part}/jobs/{job_data['shortcode']}')
+
+            if job_data['id'] in filtered_unique_ids:
+                job_urls.append(
+                    f'https://apply.workable.com/api/v2/accounts/{company_name_part}/jobs/{job_data['shortcode']}')
 
         return job_urls
+
+    def get_unique_ids(self) -> List[str]:
+        json_data = self.content
+
+        if 'results' not in json_data:
+            raise KeyNotFoundException(json_data, 'results')
+
+        jobs_data: list[dict] = json_data['results']
+        internal_ids = []
+
+        for job_data in jobs_data:
+            if 'id' not in job_data:
+                raise KeyNotFoundException(job_data, 'id')
+            internal_ids.append(str(job_data['id']))
+
+        return internal_ids
 
     def get_request_payload(self) -> dict:
         return {

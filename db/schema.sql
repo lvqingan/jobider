@@ -76,6 +76,7 @@ CREATE TABLE jobs (
     KEY company_id (company_id),
     CONSTRAINT jobs_company_id_foreign FOREIGN KEY (company_id) REFERENCES companies (id) ON DELETE CASCADE
 );
+CREATE INDEX idx_company_id_unique_id ON jobs (company_id, internal_id, external_id);
 
 -- Enable foreign key constraint checks
 SET FOREIGN_KEY_CHECKS = 1;
