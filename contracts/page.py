@@ -62,3 +62,5 @@ class Page(ABC):
 
         self.content = self.load_content(file_path)
         self.link_address = link_address
+
+        os.remove(file_path)
