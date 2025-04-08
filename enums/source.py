@@ -1,6 +1,7 @@
 from enum import Enum
 
 class Source(Enum):
+    Obsolete = 'Obsolete'
     LEVER = 'Lever'
     GREENHOUSE = 'Greenhouse'
     RECRUITEE = 'Recruitee'

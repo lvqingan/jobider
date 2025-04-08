@@ -7,8 +7,12 @@ session = Session()
 
 company_repository = CompanyRepository(session)
 companies = [
-    company_repository.get_company_with_details(567),
-    company_repository.get_company_with_details(25)
+    # Workable
+    #company_repository.get_company_with_details(567),
+    # Workday
+    #company_repository.get_company_with_details(25),
+    # Phenom People
+    company_repository.get_company_with_details(3193),
 ]
 
 def director_wrapper(company):
