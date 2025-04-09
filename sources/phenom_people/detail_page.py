@@ -34,7 +34,6 @@ class DetailPage(DetailPageContract):
         job.title = json_data['title']
         job.description = json_data['description']
         job.employment_type = json_data['type']
-        #job.requirements = json_data['skills_importance']['requirement_sentences'].join('<br/>')
         job.url = self.link_address
         job.locations = [{
             'city': json_data['city'],

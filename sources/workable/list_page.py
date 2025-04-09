@@ -38,7 +38,7 @@ class ListPage(
             if 'shortcode' not in job_data:
                 raise KeyNotFoundException(job_data, 'shortcode')
 
-            if job_data['id'] in filtered_unique_ids:
+            if str(job_data['id']) in filtered_unique_ids:
                 job_urls.append(
                     f'https://apply.workable.com/api/v2/accounts/{company_name_part}/jobs/{job_data['shortcode']}')
 

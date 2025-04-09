@@ -2,17 +2,18 @@ from director import Director
 from repositories.company_repository import CompanyRepository
 from config.database import Session
 import multiprocessing
+from enums.source import Source as SourceEnum
 
 session = Session()
 
 company_repository = CompanyRepository(session)
 companies = [
     # Workable
-    #company_repository.get_company_with_details(567),
+    company_repository.get_random_company_by_source(SourceEnum.WORKABLE),
     # Workday
-    #company_repository.get_company_with_details(25),
+    company_repository.get_random_company_by_source(SourceEnum.WORKDAY),
     # Phenom People
-    company_repository.get_company_with_details(3193),
+    company_repository.get_random_company_by_source(SourceEnum.PHENOM_PEOPLE),
 ]
 
 def director_wrapper(company):

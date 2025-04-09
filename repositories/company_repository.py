@@ -17,6 +17,9 @@ class CompanyRepository:
     def get_company_with_details(self, company_id: int) -> Union[Company, None]:
         return self.mapper.find(company_id)
 
+    def get_random_company_by_source(self, source: SourceEnum) -> Company:
+        return self.mapper.random(source)
+
     @staticmethod
     def get_source(company: Company) -> SourceContract:
         source_enum = SourceEnum(company.source)

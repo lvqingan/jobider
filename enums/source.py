@@ -70,6 +70,7 @@ class Source(Enum):
     BULLHORN = "Bullhorn"
     POWER_SCHOOL = "PowerSchool"
     ADP = "ADP"
+    WORKFORCE_NOW = "Workforce Now"
     RIPPLING = "Rippling"
     JIBE = "Jibe Talent"
     ATS_ON_DEMAND = "ATS OnDemand"
