@@ -4,6 +4,7 @@ from mappers.company_mapper import CompanyMapper
 from models.company import Company
 from contracts.source import Source as SourceContract
 from enums.source import Source as SourceEnum
+from models.company_detail import CompanyDetail
 from project_path import ProjectRootSingleton
 from utils import upper_to_snake
 import importlib
@@ -33,3 +34,9 @@ class CompanyRepository:
         sys.path.remove(sources_dir)
 
         return instance
+
+    def insert(self, company: Company) -> Union[int, None]:
+        return self.mapper.insert_company(company)
+
+    def insert_detail(self, detail: CompanyDetail):
+        self.mapper.insert_company_details(detail)

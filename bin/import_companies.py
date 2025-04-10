@@ -2,16 +2,18 @@ import csv
 import os
 import json
 
+from config.database import Session
 from enums.source import Source
-from mappers.company_mapper import CompanyMapper
 from models.company import Company
 from models.company_detail import CompanyDetail
 from tqdm import tqdm
 
+from repositories.company_repository import CompanyRepository
+
 
 def main():
-    mapper = CompanyMapper()
-    mapper.connect()
+    session = Session()
+    company_repository = CompanyRepository(session)
 
     csv_file_path = '../data/companies.csv'
     logos_dir = '../data/logos'
@@ -34,15 +36,21 @@ def main():
             print(f"Invalid source value in CSV: {source_str}. Skipping this row.")
             continue
 
+        index_url = row.get('ListUrl')
+
+        if source == Source.WORKFORCE_NOW:
+            note = json.loads(row.get('Note'))
+            index_url = index_url + '?cid=' + note['identifier']
+
         company_data = {
             'name': row.get('Name'),
             'source': source.value,
-            'index_url': row.get('ListUrl'),
+            'index_url': index_url,
             'request_method': row.get('RequestType') if row.get('RequestType') else 'GET',
             'post_params': json.loads(row.get('Params') if row.get('Params') else '{}')
         }
         company = Company(**company_data)
-        company_id = mapper.insert_company(company)
+        company_id = company_repository.insert(company)
 
         if company_id:
             logo_id = row.get('LogoID')
@@ -74,11 +82,11 @@ def main():
             }
             company_details = CompanyDetail(**company_details_data)
             try:
-                mapper.insert_company_details(company_details)
+                company_repository.insert_detail(company_details)
             except Exception as e:
                 print(f"Error inserting company details: {e}. Skipping this company details.")
 
-    mapper.disconnect()
+    session.close()
 
 
 if __name__ == "__main__":
