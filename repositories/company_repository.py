@@ -35,8 +35,8 @@ class CompanyRepository:
 
         return instance
 
-    def insert(self, company: Company) -> Union[int, None]:
-        return self.mapper.insert_company(company)
+    def save(self, company: Company) -> Union[int, None]:
+        return self.mapper.save(company)
 
-    def insert_detail(self, detail: CompanyDetail):
-        self.mapper.insert_company_details(detail)
+    def save_detail(self, detail: CompanyDetail):
+        self.mapper.save_detail(detail)

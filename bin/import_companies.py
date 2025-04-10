@@ -50,7 +50,7 @@ def main():
             'post_params': json.loads(row.get('Params') if row.get('Params') else '{}')
         }
         company = Company(**company_data)
-        company_id = company_repository.insert(company)
+        company_id = company_repository.save(company)
 
         if company_id:
             logo_id = row.get('LogoID')
@@ -82,7 +82,7 @@ def main():
             }
             company_details = CompanyDetail(**company_details_data)
             try:
-                company_repository.insert_detail(company_details)
+                company_repository.save_detail(company_details)
             except Exception as e:
                 print(f"Error inserting company details: {e}. Skipping this company details.")
 

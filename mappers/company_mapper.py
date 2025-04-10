@@ -19,7 +19,7 @@ class CompanyMapper:
     def random(self, source: SourceEnum) -> Company:
         return self.session.query(Company).filter(source.value == Company.source).order_by(func.rand()).first()
 
-    def insert_company(self, company: Company) -> Union[int, None]:
+    def save(self, company: Company) -> Union[int, None]:
         try:
             company_model = Company(
                 name=company.name,
@@ -38,7 +38,7 @@ class CompanyMapper:
             self.session.rollback()
             return None
 
-    def insert_company_details(self, company_detail: CompanyDetail):
+    def save_detail(self, company_detail: CompanyDetail):
         try:
             company_detail_model = CompanyDetail(
                 company_id=company_detail.company_id,
