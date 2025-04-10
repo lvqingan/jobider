@@ -1,4 +1,5 @@
 import re
+import traceback
 from datetime import datetime
 import functools
 from config.logging import worker_logger
@@ -18,7 +19,7 @@ def log_exceptions(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except Exception as e:
-            worker_logger.error(str(e))
+        except Exception as _:
+            worker_logger.error(traceback.format_exc())
 
     return wrapper

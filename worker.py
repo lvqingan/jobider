@@ -1,6 +1,9 @@
 import random
 from time import sleep
 from typing import Union
+
+import html2text
+
 from config.logging import worker_logger
 from models.company import Company
 from contracts.list_page.without_detail import WithoutDetail as ListPageWithoutDetailContract
@@ -10,6 +13,7 @@ from contracts.list_page.list_page import ListPage as ListPageContract
 from contracts.detail_page import DetailPage as DetailPageContract
 from contracts.list_page.cursor_based_pagination import CursorBasedPagination as ListPageCursorBasedPaginationContract
 from contracts.list_page.length_aware_pagination import LengthAwarePagination as ListPageLengthAwarePaginationContract
+from contracts.modify_link import ModifyLink as ModifyLinkContract
 from crawler import Crawler
 from enums.request_method import RequestMethod
 from repositories.job_repository import JobRepository
@@ -27,10 +31,23 @@ class Worker:
 
     def run(self) -> Union[
         ListPageContract, ListPageCursorBasedPaginationContract, ListPageLengthAwarePaginationContract]:
-        worker_logger.info(f'List Page Link: {self.company.index_url}')
-        worker_logger.info(
-            f'Next Page: {self.next_page_parameters if self.next_page_parameters is not None else 'None'}')
         list_page = self.source.get_list_page()
+        if isinstance(list_page, ModifyLinkContract):
+            list_page.link_address = list_page.modify_link(self.company.index_url)
+        else:
+            list_page.link_address = self.company.index_url
+
+        if self.next_page_parameters is not None:
+            if isinstance(list_page, PostRequestContract):
+                worker_logger.info(
+                    f'Next Page Payload: {self.next_page_parameters if self.next_page_parameters is not None else 'None'}')
+            else:
+                if '?' in list_page.link_address:
+                    list_page.link_address = list_page.link_address + '&' + urlencode(self.next_page_parameters)
+                else:
+                    list_page.link_address = list_page.link_address + '?' + urlencode(self.next_page_parameters)
+
+        worker_logger.info(f'List Page Link: {list_page.link_address}')
 
         if isinstance(list_page, PostRequestContract):
             request_payload = list_page.get_request_payload()
@@ -39,15 +56,11 @@ class Worker:
 
             if self.next_page_parameters is not None:
                 request_payload.update(self.next_page_parameters)
-            list_crawler = Crawler(self.company.index_url, RequestMethod.POST, request_payload)
+            list_crawler = Crawler(list_page.link_address, RequestMethod.POST, request_payload)
         else:
-            if self.next_page_parameters is not None:
-                list_crawler = Crawler(self.company.index_url + '?' + urlencode(self.next_page_parameters),
-                                       RequestMethod.GET)
-            else:
-                list_crawler = Crawler(self.company.index_url, RequestMethod.GET)
+            list_crawler = Crawler(list_page.link_address, RequestMethod.GET)
         list_saver = Saver(list_crawler.run(), list_page.get_response_content_type())
-        list_page.load(list_saver.run(), self.company.index_url)
+        list_page.load_content(list_saver.run())
 
         detail_page_links = []
         unique_ids = list_page.get_unique_ids()
@@ -67,21 +80,29 @@ class Worker:
 
             # session is not thread safe
             for detail_page in detail_pages:
-                job_repository.save_job(detail_page.to_job(self.company))
+                job = detail_page.to_job(self.company)
+                h = html2text.HTML2Text()
+                job.description = h.handle(job.description)
+                job_repository.save_job(job)
 
         return list_page
 
     def _scrape_detail_pages(self, detail_page_link) -> DetailPageContract:
-        seconds = random.randint(4, 8)
-        worker_logger.info(f'Detail Page Link: {detail_page_link}. Sleep {seconds} seconds')
         detail_page = self.source.get_detail_page()
+        if isinstance(detail_page, ModifyLinkContract):
+            detail_page.link_address = detail_page.modify_link(detail_page_link)
+        else:
+            detail_page.link_address = detail_page_link
+
+        seconds = random.randint(4, 8)
+        worker_logger.info(f'Detail Page Link: {detail_page.link_address}. Sleep {seconds} seconds')
 
         if isinstance(detail_page, PostRequestContract):
-            detail_crawler = Crawler(detail_page_link, RequestMethod.POST)
+            detail_crawler = Crawler(detail_page.link_address, RequestMethod.POST)
         else:
-            detail_crawler = Crawler(detail_page_link, RequestMethod.GET)
+            detail_crawler = Crawler(detail_page.link_address, RequestMethod.GET)
         detail_saver = Saver(detail_crawler.run(), detail_page.get_response_content_type())
         sleep(seconds)
-        detail_page.load(detail_saver.run(), detail_page_link)
+        detail_page.load_content(detail_saver.run())
 
         return detail_page

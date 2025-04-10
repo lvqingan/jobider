@@ -28,7 +28,7 @@ class ListPage(
     def get_response_content_type(self) -> ContentType:
         return ContentType.HTML
 
-    def load_content(self, file_path: str):
+    def _load_content(self, file_path: str):
         with open(file_path, 'r') as file:
             soup = BeautifulSoup(file.read(), 'html.parser')
             script_tags = soup.find_all('script', type='text/javascript')

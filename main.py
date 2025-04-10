@@ -14,6 +14,8 @@ companies = [
     company_repository.get_random_company_by_source(SourceEnum.WORKDAY),
     # Phenom People
     company_repository.get_random_company_by_source(SourceEnum.PHENOM_PEOPLE),
+    # Workforce Now
+    company_repository.get_random_company_by_source(SourceEnum.WORKFORCE_NOW),
 ]
 
 def director_wrapper(company):
@@ -22,7 +24,7 @@ def director_wrapper(company):
     return director.run()
 
 if __name__ == '__main__':
-    with multiprocessing.Pool(processes=2) as pool:
+    with multiprocessing.Pool(processes=1) as pool:
         results = pool.map(director_wrapper, companies)
 
 session.close()

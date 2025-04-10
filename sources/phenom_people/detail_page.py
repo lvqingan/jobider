@@ -10,7 +10,7 @@ from utils import convert_iso_to_mysql_datetime
 
 
 class DetailPage(DetailPageContract):
-    def load_content(self, file_path):
+    def _load_content(self, file_path):
         with open(file_path, 'r') as file:
             soup = BeautifulSoup(file.read(), 'html.parser')
             script_tags = soup.find_all('script', type='text/javascript')

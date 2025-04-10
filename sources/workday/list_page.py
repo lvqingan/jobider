@@ -18,7 +18,7 @@ class ListPage(
 ):
     _size = 20
 
-    def load_content(self, file_path):
+    def _load_content(self, file_path):
         try:
             with open(file_path, 'r') as file:
                 return json.load(file)

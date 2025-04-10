@@ -53,14 +53,13 @@ class Page(ABC):
         pass
 
     @abstractmethod
-    def load_content(self, file_path: str):
+    def _load_content(self, file_path: str):
         pass
 
-    def load(self, file_path: str, link_address: str):
+    def load_content(self, file_path: str):
         if os.path.exists(file_path) and not os.path.isfile(file_path):
             raise ValueError("The provided path should be a file path.")
 
-        self.content = self.load_content(file_path)
-        self.link_address = link_address
+        self.content = self._load_content(file_path)
 
         os.remove(file_path)
