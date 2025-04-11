@@ -46,7 +46,6 @@ def main():
             'name': row.get('Name'),
             'source': source.value,
             'index_url': index_url,
-            'request_method': row.get('RequestType') if row.get('RequestType') else 'GET',
             'post_params': json.loads(row.get('Params') if row.get('Params') else '{}')
         }
         company = Company(**company_data)

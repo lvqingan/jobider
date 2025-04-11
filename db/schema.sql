@@ -22,7 +22,6 @@ CREATE TABLE companies (
     parent_id int unsigned DEFAULT NULL,
     source VARCHAR(255) NOT NULL,
     index_url varchar(255) NOT NULL,
-    request_method enum('GET', 'POST') NOT NULL,
     post_params json DEFAULT NULL,
     PRIMARY KEY (id),
     KEY parent_id (parent_id),

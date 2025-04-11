@@ -11,7 +11,6 @@ class Company(Base):
     parent_id = Column(Integer)
     source = Column(String)
     index_url = Column(String)
-    request_method = Column(String)
     post_params = Column(String)
 
     details = relationship(CompanyDetail, backref='company', uselist=False)

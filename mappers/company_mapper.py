@@ -26,7 +26,6 @@ class CompanyMapper:
                 parent_id=company.parent_id,
                 source=company.source,
                 index_url=company.index_url,
-                request_method=company.request_method,
                 post_params=json.dumps(company.post_params) if company.post_params else None
             )
             self.session.add(company_model)
