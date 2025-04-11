@@ -21,6 +21,8 @@ from saver import Saver
 from urllib.parse import urlencode
 import concurrent.futures
 
+from utils import get_config
+
 
 class Worker:
     def __init__(self, company: Company, source: SourceContract, session, next_page_parameters: dict = None):
@@ -75,7 +77,7 @@ class Worker:
             detail_page_links = list_page.get_links_of_detail_pages(filtered_unique_ids)
 
         if len(detail_page_links) > 0:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=get_config()['system'].getint('max_workers')) as executor:
                 detail_pages = list(executor.map(self._scrape_detail_pages, detail_page_links))
 
             # session is not thread safe
@@ -94,15 +96,16 @@ class Worker:
         else:
             detail_page.link_address = detail_page_link
 
-        seconds = random.randint(4, 8)
-        worker_logger.info(f'Detail Page Link: {detail_page.link_address}. Sleep {seconds} seconds')
+        if get_config()['system'].getboolean('sleep'):
+            seconds = random.randint(4, 8)
+            worker_logger.info(f'Detail Page Link: {detail_page.link_address}. Sleep {seconds} seconds')
+            sleep(seconds)
 
         if isinstance(detail_page, PostRequestContract):
             detail_crawler = Crawler(detail_page.link_address, RequestMethod.POST)
         else:
             detail_crawler = Crawler(detail_page.link_address, RequestMethod.GET)
         detail_saver = Saver(detail_crawler.run(), detail_page.get_response_content_type())
-        sleep(seconds)
         detail_page.load_content(detail_saver.run())
 
         return detail_page

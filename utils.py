@@ -3,6 +3,9 @@ import traceback
 from datetime import datetime
 import functools
 from config.logging import worker_logger
+import configparser
+from functools import lru_cache
+from project_path import ProjectRootSingleton
 
 
 def upper_to_snake(upper_str):
@@ -23,3 +26,10 @@ def log_exceptions(func):
             worker_logger.error(traceback.format_exc())
 
     return wrapper
+
+@lru_cache(maxsize = 1)
+def get_config():
+    config = configparser.ConfigParser()
+    config.read(ProjectRootSingleton().get_root_path() + '/config.ini')
+
+    return config
