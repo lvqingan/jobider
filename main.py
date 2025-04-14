@@ -16,7 +16,10 @@ companies = [
     # Phenom People
     #company_repository.get_random_company_by_source(SourceEnum.PHENOM_PEOPLE),
     # Workforce Now
-    company_repository.get_random_company_by_source(SourceEnum.WORKFORCE_NOW),
+    #company_repository.get_random_company_by_source(SourceEnum.WORKFORCE_NOW),
+    # iCIMS
+    #company_repository.get_random_company_by_source(SourceEnum.ICIMS),
+    company_repository.get_company_with_details(4728)
 ]
 
 def director_wrapper(company):

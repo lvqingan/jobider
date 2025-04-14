@@ -21,7 +21,7 @@ from saver import Saver
 from urllib.parse import urlencode
 import concurrent.futures
 
-from utils import get_config
+from utils import get_config, remove_duplicate_query_params
 
 
 class Worker:
@@ -45,7 +45,8 @@ class Worker:
                     f'Next Page Payload: {self.next_page_parameters if self.next_page_parameters is not None else 'None'}')
             else:
                 if '?' in list_page.link_address:
-                    list_page.link_address = list_page.link_address + '&' + urlencode(self.next_page_parameters)
+                    list_page.link_address = remove_duplicate_query_params(
+                        list_page.link_address + '&' + urlencode(self.next_page_parameters))
                 else:
                     list_page.link_address = list_page.link_address + '?' + urlencode(self.next_page_parameters)
 
@@ -73,11 +74,11 @@ class Worker:
             filtered_unique_ids = job_repository.filter_out(self.company.id, internal_ids=unique_ids)
 
         if isinstance(list_page, ListPageWithoutDetailContract):
-
             detail_page_links = list_page.get_links_of_detail_pages(filtered_unique_ids)
 
         if len(detail_page_links) > 0:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=get_config()['system'].getint('max_workers')) as executor:
+            with concurrent.futures.ThreadPoolExecutor(
+                    max_workers=get_config()['system'].getint('max_workers')) as executor:
                 detail_pages = list(executor.map(self._scrape_detail_pages, detail_page_links))
 
             # session is not thread safe
